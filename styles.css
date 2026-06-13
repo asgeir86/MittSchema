@@ -1,0 +1,205 @@
+/* MittSchema — mobil-först, mörkt tema, glanceable. */
+:root {
+  --bg: #10151a;
+  --card: #1b2229;
+  --card-2: #232c35;
+  --text: #e8edf2;
+  --muted: #9aa7b2;
+  --line: #2c3742;
+  --ute: #1f8f63;        /* grön = får vara ute */
+  --ute-soft: #145138;
+  --inne: #c0392b;       /* röd = måste vara inne */
+  --inne-soft: #5a201a;
+  --gold: #e9c46a;
+  --radius: 18px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 540px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + 14px) 16px calc(var(--safe-bottom) + 84px);
+}
+
+header { margin-bottom: 16px; }
+.app-name { font-size: 15px; letter-spacing: .5px; color: var(--muted); margin: 0; text-transform: uppercase; }
+.today-date { font-size: 26px; font-weight: 700; margin: 2px 0 0; text-transform: capitalize; }
+
+/* Statuskort — fyller skärmen, syns på en sekund */
+.status-card {
+  border-radius: var(--radius);
+  padding: 28px 22px;
+  margin-bottom: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  text-align: center;
+  transition: background .25s ease;
+}
+.status-card.ute  { background: linear-gradient(160deg, var(--ute) 0%, var(--ute-soft) 100%); border-color: transparent; }
+.status-card.inne { background: linear-gradient(160deg, var(--inne) 0%, var(--inne-soft) 100%); border-color: transparent; }
+.status-emoji { font-size: 52px; line-height: 1; }
+.status-title { font-size: 30px; font-weight: 800; margin: 10px 0 6px; }
+.status-sub   { font-size: 16px; opacity: .95; margin: 0; }
+
+/* Sektioner */
+.section { margin-bottom: 18px; }
+.section-title { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 10px 2px; }
+
+/* Tidslinje 00–24 */
+.timeline {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.timeline-bar {
+  position: relative;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--inne-soft);
+  overflow: hidden;
+}
+.timeline-bar .seg {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: var(--ute);
+}
+.timeline-bar .now-marker {
+  position: absolute;
+  top: -3px; bottom: -3px;
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35);
+}
+.timeline-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Dagens ute-tider */
+.window-list { list-style: none; margin: 0; padding: 0; }
+.window-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.window-list li.empty { color: var(--muted); justify-content: center; }
+.window-list .win-time { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 104px; }
+.window-list .win-label { color: var(--muted); }
+.window-list li.perm { border-left: 4px solid var(--gold); }
+.window-list li.perm .win-label { color: var(--gold); }
+
+/* Permission-summering */
+.perm-summary {
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: center;
+}
+
+/* Bottennav */
+.nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  background: rgba(16,21,26,.92);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  padding: 8px 0 calc(var(--safe-bottom) + 8px);
+}
+.nav .nav-item {
+  background: none; border: none; color: var(--muted);
+  font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 18px;
+}
+.nav .nav-item .ico { font-size: 20px; }
+.nav .nav-item.active { color: var(--text); }
+.nav .nav-item[aria-disabled="true"] { opacity: .4; }
+.nav .nav-item { cursor: pointer; }
+
+/* ---- Vyer ---- */
+.view.hidden { display: none; }
+.view-title { font-size: 24px; font-weight: 800; margin: 4px 0 4px; }
+.view-sub { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+.view-section { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 22px 0 10px 2px; }
+
+/* Inmatningar (mörkt tema) */
+input[type="time"], input[type="text"], input[type="date"], input[type="datetime-local"] {
+  background: var(--card-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 9px 10px; font-size: 15px; font-family: inherit;
+}
+input::-webkit-calendar-picker-indicator { filter: invert(.8); }
+
+/* Dag-/avvikelse-/permissionkort */
+.day-card, .ovr-card, .perm-card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 12px 8px; margin-bottom: 10px;
+}
+.day-head, .ovr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.day-name { font-weight: 700; font-size: 16px; }
+
+.win-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.win-row .in-time { width: 88px; }
+.win-row .in-label { flex: 1; min-width: 0; }
+.win-row .dash { color: var(--muted); }
+.win-row .dash.wide { min-width: 38px; }
+.win-row.invalid .in-time { border-color: var(--inne); }
+
+.btn-del {
+  background: none; border: 1px solid var(--line); color: var(--muted);
+  border-radius: 8px; width: 34px; height: 34px; font-size: 15px; flex: 0 0 auto; cursor: pointer;
+}
+.btn-add {
+  background: none; border: 1px dashed var(--line); color: var(--text);
+  border-radius: 10px; padding: 9px 12px; font-size: 14px; width: 100%; margin: 2px 0 4px; cursor: pointer;
+}
+.muted-note { color: var(--muted); font-size: 13px; margin: 2px 0 8px; }
+
+.add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.add-row input { flex: 1; }
+.btn {
+  background: var(--ute); color: #fff; border: none;
+  border-radius: 10px; padding: 9px 14px; font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.btn.secondary { background: var(--card-2); color: var(--text); border: 1px solid var(--line); font-weight: 500; }
+
+.perm-info { font-size: 14px; color: var(--muted); margin: 0 0 10px; }
+.perm-info.warn { color: #ff8a80; }
+.perm-dur { font-size: 13px; color: var(--gold); margin: 4px 0 2px; }
+
+/* Veckovy */
+.week-sep { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .6px; margin: 18px 0 8px 2px; }
+.week-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.week-label { width: 104px; flex: 0 0 auto; font-size: 14px; color: var(--muted); }
+.week-label .wl-strong { font-weight: 700; color: var(--text); }
+.mini-bar { position: relative; flex: 1; height: 16px; border-radius: 6px; background: var(--inne-soft); overflow: hidden; }
+.mini-bar .seg { position: absolute; top: 0; bottom: 0; background: var(--ute); }
+.mini-bar .mini-now { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #fff; }
+.perm-tag { font-size: 11px; color: var(--gold); border: 1px solid var(--gold); border-radius: 6px; padding: 1px 5px; margin-left: 6px; }
