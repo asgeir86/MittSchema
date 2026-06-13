@@ -12,6 +12,10 @@ window.MS = window.MS || {};
     var schedule = MS.state.schedule;
 
     el('today-date').textContent = S.formatDateLong(now);
+    var tw = el('today-week');
+    if (tw) tw.textContent = (schedule.weeks && schedule.weeks.length > 1)
+      ? 'Vecka ' + S.isoWeekNumber(now) + ' · schema ' + (S.weekIndexForDate(now, schedule) + 1)
+      : '';
 
     var status = S.getStatusAt(now, schedule);
     var isOut = status.state === 'ute';

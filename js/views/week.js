@@ -51,7 +51,12 @@ window.MS = window.MS || {};
     for (var i = 0; i < DAYS; i++) {
       var d = new Date(now); d.setDate(d.getDate() + i); d.setHours(0, 0, 0, 0);
       var wk = S.isoWeekNumber(d);
-      if (wk !== lastWk) { root.appendChild(el('div', { class: 'week-sep', text: 'Vecka ' + wk })); lastWk = wk; }
+      if (wk !== lastWk) {
+        var sepTxt = 'Vecka ' + wk;
+        if (sc.weeks && sc.weeks.length > 1) sepTxt += ' · schema ' + (S.weekIndexForDate(d, sc) + 1);
+        root.appendChild(el('div', { class: 'week-sep', text: sepTxt }));
+        lastWk = wk;
+      }
 
       var isToday = S.dateKey(d) === S.dateKey(now);
       var lab = el('div', { class: 'week-label' }, [

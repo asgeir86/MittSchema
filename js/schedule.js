@@ -81,7 +81,8 @@ window.MS = window.MS || {};
       base = schedule.overrides[key];
     } else {
       var wd = isoWeekday(date);
-      base = (schedule.weekly && schedule.weekly[wd]) ? schedule.weekly[wd] : [];
+      var pat = weekPatternForDate(date, schedule);
+      base = (pat && pat[wd]) ? pat[wd] : [];
     }
     var wins = base.map(function (w) {
       return { startMin: parseTime(w.start), endMin: parseTime(w.end), label: w.label || 'Ute' };
@@ -170,6 +171,36 @@ window.MS = window.MS || {};
     return 1 + Math.round((d - firstThu) / 6048e5);
   }
 
+  function mondayOf(date) {
+    var d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  }
+
+  // Rotationsindex (0-baserat) för datumets vecka, givet anchor-måndagen.
+  function weekIndexForDate(date, schedule) {
+    var weeks = schedule.weeks;
+    if (!weeks || weeks.length <= 1) return 0;
+    var L = weeks.length;
+    var anchor = schedule.rotationAnchorMonday ? new Date(schedule.rotationAnchorMonday + 'T00:00') : date;
+    var diff = Math.round((mondayOf(date) - mondayOf(anchor)) / 6048e5);
+    return ((diff % L) + L) % L;
+  }
+
+  // Veckomönstret (1..7) som gäller för datumet (roterande schema + bakåtkompatibilitet).
+  function weekPatternForDate(date, schedule) {
+    var weeks = schedule.weeks;
+    if (!weeks || !weeks.length) return schedule.weekly || {};
+    return weeks[weekIndexForDate(date, schedule)] || {};
+  }
+
+  // Sätt anchor så att innevarande vecka får mönster-index k.
+  function setCurrentWeekIndex(schedule, k) {
+    var m = mondayOf(new Date());
+    m.setDate(m.getDate() - k * 7);
+    schedule.rotationAnchorMonday = dateKey(m);
+  }
+
   MS.Schedule = {
     parseTime: parseTime,
     minToTime: minToTime,
@@ -184,6 +215,10 @@ window.MS = window.MS || {};
     permissionStatsForMonth: permissionStatsForMonth,
     weekdayLongByIso: weekdayLongByIso,
     weekdayShortByIso: weekdayShortByIso,
-    isoWeekNumber: isoWeekNumber
+    isoWeekNumber: isoWeekNumber,
+    mondayOf: mondayOf,
+    weekIndexForDate: weekIndexForDate,
+    weekPatternForDate: weekPatternForDate,
+    setCurrentWeekIndex: setCurrentWeekIndex
   };
 })(window.MS);

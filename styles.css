@@ -203,3 +203,34 @@ input::-webkit-calendar-picker-indicator { filter: invert(.8); }
 .mini-bar .seg { position: absolute; top: 0; bottom: 0; background: var(--ute); }
 .mini-bar .mini-now { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #fff; }
 .perm-tag { font-size: 11px; color: var(--gold); border: 1px solid var(--gold); border-radius: 6px; padding: 1px 5px; margin-left: 6px; }
+
+/* ---- Roterande veckor, tryck-för-att-ändra, kopiera ---- */
+.today-week { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+
+.week-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.wtab { background: var(--card-2); color: var(--muted); border: 1px solid var(--line); border-radius: 20px; padding: 7px 14px; font-size: 14px; cursor: pointer; }
+.wtab.active { color: var(--text); border-color: var(--ute); }
+.wtab.add { border-style: dashed; }
+.wtab-now { color: var(--ute); font-weight: 700; }
+
+.phase-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.phase-label { color: var(--muted); font-size: 14px; }
+select { background: var(--card-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 15px; font-family: inherit; }
+
+.btn-mini { background: var(--card-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+.btn-mini.danger { color: #ff8a80; border-color: var(--inne-soft); }
+
+.win-row.ro { gap: 10px; }
+.win-row.ro .ro-time { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 104px; }
+.win-row.ro .ro-label { color: var(--muted); flex: 1; min-width: 0; }
+.win-row.ro.invalid .ro-time { color: #ff8a80; }
+
+.win-edit { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-bottom: 8px; }
+.win-edit .in-label { width: 100%; margin-top: 8px; }
+.edit-actions { display: flex; gap: 8px; margin-top: 10px; }
+.edit-err { color: #ff8a80; font-size: 13px; margin: 6px 0 0; }
+
+.copy-panel { background: var(--card-2); border: 1px dashed var(--line); border-radius: 12px; padding: 10px; margin-top: 6px; }
+.copy-days { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0; }
+.copy-day { font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.copy-quick { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
