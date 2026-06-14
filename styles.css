@@ -236,3 +236,4 @@ select { background: var(--card-2); color: var(--text); border: 1px solid var(--
 .copy-quick { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .week-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
 .week-name-row .in-label { flex: 1; }
+.data-actions { display: flex; gap: 8px; flex-wrap: wrap; }

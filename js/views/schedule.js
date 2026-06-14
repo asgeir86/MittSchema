@@ -283,9 +283,50 @@ window.MS = window.MS || {};
     return wrap;
   }
 
-  function resetBlock() {
+  function exportSchedule() {
+    var data = JSON.stringify(MS.state.schedule, null, 2);
+    var name = 'mittschema-' + S.dateKey(new Date()) + '.json';
+    var file = null;
+    try { file = new File([data], name, { type: 'application/json' }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'MittSchema säkerhetskopia' }).catch(function () {});
+      return;
+    }
+    var url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+    var a = el('a', { href: url, download: name });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function importSchedule(fileObj) {
+    if (!fileObj) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var obj;
+      try { obj = JSON.parse(reader.result); } catch (e) { window.alert('Filen kunde inte läsas (ogiltig JSON).'); return; }
+      if (!obj || typeof obj !== 'object' || (!obj.weeks && !obj.weekly)) { window.alert('Det här ser inte ut som en MittSchema-säkerhetskopia.'); return; }
+      if (!window.confirm('Ersätta ditt nuvarande schema med innehållet i filen?')) return;
+      var migrated = MS.Storage.importFromObject(obj);
+      if (!migrated) { window.alert('Säkerhetskopian kunde inte läsas in.'); return; }
+      MS.state.schedule = migrated;
+      editWeek = 0; editTarget = null; copyPanelKey = null;
+      rerender();
+    };
+    reader.readAsText(fileObj);
+  }
+
+  function dataBlock() {
     var wrap = el('div', { class: 'section' });
-    wrap.appendChild(el('button', { class: 'btn secondary', text: 'Återställ exempelschema',
+    wrap.appendChild(sectionTitle('Säkerhetskopiera'));
+    wrap.appendChild(el('p', { class: 'muted-note', text: 'Ditt schema sparas bara på den här enheten. Exportera en kopia ibland så du inte tappar det (t.ex. vid telefonbyte).' }));
+    var row = el('div', { class: 'data-actions' });
+    row.appendChild(el('button', { class: 'btn', text: 'Exportera till fil', onclick: exportSchedule }));
+    var fileInput = el('input', { type: 'file', accept: 'application/json,.json', style: 'display:none' });
+    fileInput.addEventListener('change', function (e) { importSchedule(e.target.files[0]); e.target.value = ''; });
+    row.appendChild(el('button', { class: 'btn secondary', text: 'Importera från fil', onclick: function () { fileInput.click(); } }));
+    row.appendChild(fileInput);
+    wrap.appendChild(row);
+    wrap.appendChild(el('button', { class: 'btn secondary', text: 'Återställ exempelschema', style: 'margin-top:12px',
       onclick: function () {
         if (window.confirm('Ersätta ditt schema med exempelschemat? Detta går inte att ångra.')) {
           MS.state.schedule = MS.Storage.defaultSchedule();
@@ -319,7 +360,7 @@ window.MS = window.MS || {};
     root.appendChild(sectionTitle('Permission (72 tim/mån, max 4 tillfällen)'));
     root.appendChild(permissionBlock(sc));
 
-    root.appendChild(resetBlock());
+    root.appendChild(dataBlock());
   }
 
   MS.Views = MS.Views || {};

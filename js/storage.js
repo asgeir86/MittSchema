@@ -39,6 +39,14 @@ window.MS = window.MS || {};
     return s;
   }
 
+  // Validera + migrera ett inläst objekt (importerad säkerhetskopia). Returnerar null om det inte ser ut som ett schema.
+  function importFromObject(obj) {
+    if (!obj || typeof obj !== 'object' || (!obj.weeks && !obj.weekly)) return null;
+    var m = migrate(obj);
+    save(m);
+    return m;
+  }
+
   function load() {
     try {
       var raw = localStorage.getItem(KEY);
@@ -54,5 +62,5 @@ window.MS = window.MS || {};
     catch (e) { console.warn('Kunde inte spara schema:', e); }
   }
 
-  MS.Storage = { load: load, save: save, defaultSchedule: defaultSchedule, KEY: KEY };
+  MS.Storage = { load: load, save: save, defaultSchedule: defaultSchedule, importFromObject: importFromObject, KEY: KEY };
 })(window.MS);
