@@ -14,7 +14,7 @@ window.MS = window.MS || {};
     el('today-date').textContent = S.formatDateLong(now);
     var tw = el('today-week');
     if (tw) tw.textContent = (schedule.weeks && schedule.weeks.length > 1)
-      ? 'Vecka ' + S.isoWeekNumber(now) + ' · schema ' + (S.weekIndexForDate(now, schedule) + 1)
+      ? 'Vecka ' + S.isoWeekNumber(now) + ' · ' + S.weekTag(schedule, S.weekIndexForDate(now, schedule))
       : '';
 
     var status = S.getStatusAt(now, schedule);

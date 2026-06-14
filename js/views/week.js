@@ -53,7 +53,7 @@ window.MS = window.MS || {};
       var wk = S.isoWeekNumber(d);
       if (wk !== lastWk) {
         var sepTxt = 'Vecka ' + wk;
-        if (sc.weeks && sc.weeks.length > 1) sepTxt += ' · schema ' + (S.weekIndexForDate(d, sc) + 1);
+        if (sc.weeks && sc.weeks.length > 1) sepTxt += ' · ' + S.weekTag(sc, S.weekIndexForDate(d, sc));
         root.appendChild(el('div', { class: 'week-sep', text: sepTxt }));
         lastWk = wk;
       }

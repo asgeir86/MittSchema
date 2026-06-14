@@ -234,3 +234,5 @@ select { background: var(--card-2); color: var(--text); border: 1px solid var(--
 .copy-days { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0; }
 .copy-day { font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .copy-quick { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.week-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.week-name-row .in-label { flex: 1; }

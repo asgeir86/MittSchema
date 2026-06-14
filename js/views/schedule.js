@@ -35,6 +35,7 @@ window.MS = window.MS || {};
     if (!sc.weeks) sc.weeks = sc.weekly ? [sc.weekly] : [{}];
     if (!sc.weeks.length) sc.weeks = [{}];
     if (!sc.rotationAnchorMonday) sc.rotationAnchorMonday = S.dateKey(S.mondayOf(new Date()));
+    sc.weekNames = sc.weekNames || [];
     sc.overrides = sc.overrides || {};
     sc.permissions = sc.permissions || [];
   }
@@ -45,7 +46,7 @@ window.MS = window.MS || {};
     var curIdx = S.weekIndexForDate(new Date(), sc);
     sc.weeks.forEach(function (_, i) {
       var btn = el('button', { class: 'wtab' + (i === editWeek ? ' active' : ''),
-        onclick: function () { editWeek = i; editTarget = null; copyPanelKey = null; rerender(); } }, ['Vecka ' + (i + 1)]);
+        onclick: function () { editWeek = i; editTarget = null; copyPanelKey = null; rerender(); } }, [S.weekName(sc, i)]);
       if (sc.weeks.length > 1 && i === curIdx) btn.appendChild(el('span', { class: 'wtab-now', text: ' • nu' }));
       wrap.appendChild(btn);
     });
@@ -68,20 +69,29 @@ window.MS = window.MS || {};
     var curIdx = S.weekIndexForDate(new Date(), sc);
     var sel = el('select', { onchange: function (e) { S.setCurrentWeekIndex(sc, parseInt(e.target.value, 10)); save(); rerender(); } });
     sc.weeks.forEach(function (_, i) {
-      var opt = el('option', { value: String(i), text: 'Vecka ' + (i + 1) });
+      var opt = el('option', { value: String(i), text: S.weekName(sc, i) });
       if (i === curIdx) opt.selected = true;
       sel.appendChild(opt);
     });
     wrap.appendChild(sel);
-    wrap.appendChild(el('button', { class: 'btn-mini danger', text: 'Ta bort Vecka ' + (editWeek + 1),
+    wrap.appendChild(el('button', { class: 'btn-mini danger', text: 'Ta bort ' + S.weekName(sc, editWeek),
       onclick: function () {
-        if (window.confirm('Ta bort Vecka ' + (editWeek + 1) + ' ur rotationen?')) {
+        if (window.confirm('Ta bort ' + S.weekName(sc, editWeek) + ' ur rotationen?')) {
           sc.weeks.splice(editWeek, 1);
           if (editWeek >= sc.weeks.length) editWeek = sc.weeks.length - 1;
           editTarget = null; copyPanelKey = null;
           save(); rerender();
         }
       } }));
+    return wrap;
+  }
+
+  function weekNameEditor(sc) {
+    if (sc.weeks.length <= 1) return el('div');
+    var wrap = el('div', { class: 'week-name-row' });
+    wrap.appendChild(el('label', { class: 'phase-label', text: 'Namn på veckan:' }));
+    wrap.appendChild(el('input', { type: 'text', class: 'in-label', value: sc.weekNames[editWeek] || '', placeholder: 't.ex. Förmiddag',
+      onchange: function (e) { sc.weekNames[editWeek] = e.target.value; save(); rerender(); } }));
     return wrap;
   }
 
@@ -207,8 +217,11 @@ window.MS = window.MS || {};
       } });
     wrap.appendChild(el('div', { class: 'add-row' }, [dateInput, addBtn]));
 
-    var keys = Object.keys(sc.overrides).sort();
-    if (!keys.length) wrap.appendChild(el('p', { class: 'muted-note', text: 'Inga avvikelser inlagda. Lägg till en dag som skiljer sig från veckoschemat.' }));
+    var todayKey = S.dateKey(new Date());
+    var allKeys = Object.keys(sc.overrides);
+    var keys = allKeys.filter(function (k) { return k >= todayKey; }).sort();
+    var hiddenPast = allKeys.length - keys.length;
+    if (!keys.length) wrap.appendChild(el('p', { class: 'muted-note', text: 'Inga kommande avvikelser. Lägg till en dag som skiljer sig från veckoschemat.' }));
     keys.forEach(function (k) {
       var card = el('div', { class: 'ovr-card' });
       var d = new Date(k + 'T00:00');
@@ -220,6 +233,7 @@ window.MS = window.MS || {};
       card.appendChild(windowEditor(sc.overrides[k], 'o|' + k + '|'));
       wrap.appendChild(card);
     });
+    if (hiddenPast > 0) wrap.appendChild(el('p', { class: 'muted-note', text: hiddenPast + ' tidigare avvikelse' + (hiddenPast > 1 ? 'r' : '') + ' visas inte.' }));
     return wrap;
   }
 
@@ -295,6 +309,7 @@ window.MS = window.MS || {};
 
     root.appendChild(sectionTitle('Veckoschema'));
     root.appendChild(weekTabs(sc));
+    root.appendChild(weekNameEditor(sc));
     root.appendChild(phaseControl(sc));
     for (var iso = 1; iso <= 7; iso++) root.appendChild(dayBlock(sc, editWeek, iso));
 

@@ -201,6 +201,17 @@ window.MS = window.MS || {};
     schedule.rotationAnchorMonday = dateKey(m);
   }
 
+  // Visningsnamn för en rotationsvecka (egen etikett, annars "Vecka N").
+  function weekName(schedule, i) {
+    var n = schedule.weekNames && schedule.weekNames[i];
+    return (n && String(n).trim()) ? n : ('Vecka ' + (i + 1));
+  }
+  // Kort etikett för kontext (Idag/Vecka): egen etikett, annars "schema N".
+  function weekTag(schedule, i) {
+    var n = schedule.weekNames && schedule.weekNames[i];
+    return (n && String(n).trim()) ? n : ('schema ' + (i + 1));
+  }
+
   MS.Schedule = {
     parseTime: parseTime,
     minToTime: minToTime,
@@ -219,6 +230,8 @@ window.MS = window.MS || {};
     mondayOf: mondayOf,
     weekIndexForDate: weekIndexForDate,
     weekPatternForDate: weekPatternForDate,
-    setCurrentWeekIndex: setCurrentWeekIndex
+    setCurrentWeekIndex: setCurrentWeekIndex,
+    weekName: weekName,
+    weekTag: weekTag
   };
 })(window.MS);
