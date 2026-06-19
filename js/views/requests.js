@@ -23,6 +23,7 @@ window.MS = window.MS || {};
     var sc = MS.state.schedule;
     sc.requests = sc.requests || [];
     sc.requests.push(req);
+    MS.logEvent('submit', (req.type === 'change' ? 'Ändringsförslag' : 'Permissionsansökan') + ' – ' + reqDescription(req));
     save(); rerender();
   }
 
@@ -107,12 +108,32 @@ window.MS = window.MS || {};
       if (r.status === 'pending' && canDecide) {
         var actions = el('div', { class: 'edit-actions' });
         actions.appendChild(el('button', { class: 'btn', text: 'Godkänn',
-          onclick: function () { S.applyRequest(sc, r); r.status = 'approved'; save(); rerender(); } }));
+          onclick: function () { S.applyRequest(sc, r); r.status = 'approved'; MS.logEvent('approve', 'Godkände ' + (r.type === 'change' ? 'ändringsförslag' : 'permission') + ' – ' + reqDescription(r)); save(); rerender(); } }));
         actions.appendChild(el('button', { class: 'btn secondary', text: 'Avslå',
-          onclick: function () { r.status = 'denied'; save(); rerender(); } }));
+          onclick: function () { r.status = 'denied'; MS.logEvent('deny', 'Avslog ' + (r.type === 'change' ? 'ändringsförslag' : 'permission') + ' – ' + reqDescription(r)); save(); rerender(); } }));
         card.appendChild(actions);
       }
       wrap.appendChild(card);
+    });
+    return wrap;
+  }
+
+  function formatTs(iso) {
+    var d = new Date(iso);
+    return d.getDate() + '/' + (d.getMonth() + 1) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  function logList() {
+    var sc = MS.state.schedule;
+    sc.log = sc.log || [];
+    var wrap = el('div');
+    if (!sc.log.length) { wrap.appendChild(el('p', { class: 'muted-note', text: 'Inga händelser ännu.' })); return wrap; }
+    sc.log.slice().reverse().forEach(function (e) {
+      wrap.appendChild(el('div', { class: 'log-row' }, [
+        el('span', { class: 'log-ts', text: formatTs(e.ts) }),
+        el('span', { class: 'log-role ' + e.role, text: e.role === 'handlaggare' ? 'Handläggare' : 'Klient' }),
+        el('span', { class: 'log-detail', text: e.detail })
+      ]));
     });
     return wrap;
   }
@@ -127,6 +148,8 @@ window.MS = window.MS || {};
       : 'Föreslå ändrad tid eller ansök om permission. Du ser status på dina ansökningar här.' }));
     if (handl) {
       root.appendChild(queue(true));
+      root.appendChild(sectionTitle('Historik (spårbarhet)'));
+      root.appendChild(logList());
     } else {
       root.appendChild(sectionTitle('Skicka'));
       root.appendChild(changeForm());

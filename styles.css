@@ -260,3 +260,11 @@ select { background: var(--card-2); color: var(--text); border: 1px solid var(--
 .role-btn { background: none; border: none; color: var(--muted); font-size: 13px; padding: 6px 16px; border-radius: 999px; cursor: pointer; }
 .role-btn.active { background: var(--ute); color: #fff; }
 .app.role-klient .nav-item[data-view="schedule"] { display: none; }
+
+/* Historik / spårbarhet */
+.log-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.log-ts { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 62px; }
+.log-role { font-size: 11px; padding: 1px 7px; border-radius: 999px; flex: 0 0 auto; }
+.log-role.handlaggare { background: var(--ute-soft); color: #8be0b6; }
+.log-role.klient { background: var(--inne-soft); color: #ffd27a; }
+.log-detail { flex: 1; min-width: 120px; }

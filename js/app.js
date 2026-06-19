@@ -78,6 +78,15 @@ window.MS = window.MS || {};
   }
   MS.setRole = setRole;
 
+  // Spårbarhet: lägg en händelse i loggen (vem/vad/när).
+  function logEvent(action, detail) {
+    var sc = MS.state.schedule;
+    sc.log = sc.log || [];
+    sc.log.push({ ts: new Date().toISOString(), role: MS.state.role, action: action, detail: detail });
+    MS.Storage.save(sc);
+  }
+  MS.logEvent = logEvent;
+
   function init() {
     MS.state.schedule = MS.Storage.load();
     MS.state.role = loadRole();
