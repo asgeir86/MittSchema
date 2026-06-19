@@ -86,7 +86,7 @@ window.MS = window.MS || {};
     return el('span', { class: 'req-badge ' + status, text: map[status] || status });
   }
 
-  function queue() {
+  function queue(canDecide) {
     var sc = MS.state.schedule;
     sc.requests = sc.requests || [];
     var wrap = el('div');
@@ -104,7 +104,7 @@ window.MS = window.MS || {};
       ]));
       card.appendChild(el('p', { class: 'req-desc', text: reqDescription(r) }));
       if (r.note) card.appendChild(el('p', { class: 'req-note', text: '”' + r.note + '”' }));
-      if (r.status === 'pending') {
+      if (r.status === 'pending' && canDecide) {
         var actions = el('div', { class: 'edit-actions' });
         actions.appendChild(el('button', { class: 'btn', text: 'Godkänn',
           onclick: function () { S.applyRequest(sc, r); r.status = 'approved'; save(); rerender(); } }));
@@ -120,13 +120,20 @@ window.MS = window.MS || {};
   function render() {
     var root = document.getElementById('view-requests');
     MS.UI.clear(root);
-    root.appendChild(el('h2', { class: 'view-title', text: 'Förslag & ansökningar' }));
-    root.appendChild(el('p', { class: 'view-sub', text: 'Demo av det tvåsidiga flödet: klienten skickar, handläggaren beslutar. Godkänt slår igenom i schemat. (I skarpt läge är detta skilda roller på olika enheter.)' }));
-    root.appendChild(sectionTitle('Skicka (klient)'));
-    root.appendChild(changeForm());
-    root.appendChild(permissionForm());
-    root.appendChild(sectionTitle('Inkomna förslag (handläggare)'));
-    root.appendChild(queue());
+    var handl = MS.state.role === 'handlaggare';
+    root.appendChild(el('h2', { class: 'view-title', text: handl ? 'Inkomna förslag' : 'Mina ansökningar' }));
+    root.appendChild(el('p', { class: 'view-sub', text: handl
+      ? 'Granska klientens förslag och besluta. Godkänt slår igenom i schemat.'
+      : 'Föreslå ändrad tid eller ansök om permission. Du ser status på dina ansökningar här.' }));
+    if (handl) {
+      root.appendChild(queue(true));
+    } else {
+      root.appendChild(sectionTitle('Skicka'));
+      root.appendChild(changeForm());
+      root.appendChild(permissionForm());
+      root.appendChild(sectionTitle('Mina ansökningar'));
+      root.appendChild(queue(false));
+    }
   }
 
   MS.Views = MS.Views || {};

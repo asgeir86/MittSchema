@@ -19,6 +19,13 @@
 </head>
 <body>
   <div class="app">
+    <div class="rolebar">
+      <span class="rolebar-label">Visar som</span>
+      <div class="role-switch">
+        <button class="role-btn" data-role="klient">Klient</button>
+        <button class="role-btn" data-role="handlaggare">Handläggare</button>
+      </div>
+    </div>
     <main id="views">
 
       <!-- IDAG -->
@@ -70,7 +77,7 @@
       <button class="nav-item active" data-view="today"><span class="ico">📅</span>Idag</button>
       <button class="nav-item" data-view="schedule"><span class="ico">📝</span>Schema</button>
       <button class="nav-item" data-view="week"><span class="ico">🗓️</span>Vecka</button>
-      <button class="nav-item" data-view="requests"><span class="ico">📨</span>Förslag</button>
+      <button class="nav-item" data-view="requests"><span class="ico">📨</span><span class="lbl">Förslag</span></button>
     </nav>
   </div>
 
