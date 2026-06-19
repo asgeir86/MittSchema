@@ -1,5 +1,5 @@
 /* Service worker — cachar app-skalet så appen funkar offline. */
-var CACHE = 'mittschema-v5';
+var CACHE = 'mittschema-v6';
 var ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ var ASSETS = [
   './js/views/today.js',
   './js/views/schedule.js',
   './js/views/week.js',
+  './js/views/requests.js',
   './manifest.webmanifest',
   './icons/icon-180.png',
   './icons/icon-192.png',

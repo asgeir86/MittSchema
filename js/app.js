@@ -30,13 +30,14 @@ window.MS = window.MS || {};
   MS.UI = { el: el, clear: clear };
 
   MS.state = { schedule: null, current: 'today' };
-  var VIEWS = ['today', 'schedule', 'week'];
+  var VIEWS = ['today', 'schedule', 'week', 'requests'];
 
   function renderCurrent() {
     var v = MS.state.current;
     if (v === 'today') MS.Views.Today.render();
     else if (v === 'schedule') MS.Views.Schedule.render();
     else if (v === 'week') MS.Views.Week.render();
+    else if (v === 'requests') MS.Views.Requests.render();
   }
 
   function show(name) {

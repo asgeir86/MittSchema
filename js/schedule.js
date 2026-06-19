@@ -212,6 +212,18 @@ window.MS = window.MS || {};
     return (n && String(n).trim()) ? n : ('schema ' + (i + 1));
   }
 
+  // Tillämpa ett godkänt förslag på schemat (handläggar-beslut).
+  function applyRequest(schedule, req) {
+    if (req.type === 'change') {
+      schedule.overrides = schedule.overrides || {};
+      schedule.overrides[req.date] = (req.windows || []).map(function (w) { return { start: w.start, end: w.end, label: w.label }; });
+    } else if (req.type === 'permission') {
+      schedule.permissions = schedule.permissions || [];
+      schedule.permissions.push({ start: req.start, end: req.end, label: 'Permission' });
+    }
+    return schedule;
+  }
+
   MS.Schedule = {
     parseTime: parseTime,
     minToTime: minToTime,
@@ -232,6 +244,7 @@ window.MS = window.MS || {};
     weekPatternForDate: weekPatternForDate,
     setCurrentWeekIndex: setCurrentWeekIndex,
     weekName: weekName,
-    weekTag: weekTag
+    weekTag: weekTag,
+    applyRequest: applyRequest
   };
 })(window.MS);

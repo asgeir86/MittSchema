@@ -23,7 +23,7 @@ window.MS = window.MS || {};
   function todayMondayKey() { return MS.Schedule.dateKey(MS.Schedule.mondayOf(new Date())); }
 
   function defaultSchedule() {
-    return { version: 2, weeks: [weekPattern()], weekNames: [], rotationAnchorMonday: todayMondayKey(), overrides: {}, permissions: [] };
+    return { version: 2, weeks: [weekPattern()], weekNames: [], rotationAnchorMonday: todayMondayKey(), overrides: {}, permissions: [], requests: [] };
   }
 
   function migrate(s) {
@@ -35,6 +35,7 @@ window.MS = window.MS || {};
     if (!s.overrides) s.overrides = {};
     if (!s.permissions) s.permissions = [];
     if (!s.weekNames) s.weekNames = [];
+    if (!s.requests) s.requests = [];
     s.version = 2;
     return s;
   }
