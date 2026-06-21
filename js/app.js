@@ -30,7 +30,7 @@ window.MS = window.MS || {};
   MS.UI = { el: el, clear: clear };
 
   MS.state = { store: null, schedule: null, clientId: null, current: 'today', role: 'klient' };
-  var VIEWS = ['today', 'schedule', 'week', 'requests'];
+  var VIEWS = ['today', 'schedule', 'week', 'requests', 'clients'];
 
   // ---- Klienter (caseload) + lagring på store-nivå ----
   function save() { MS.Storage.save(MS.state.store); }
@@ -90,6 +90,7 @@ window.MS = window.MS || {};
     else if (v === 'schedule') MS.Views.Schedule.render();
     else if (v === 'week') MS.Views.Week.render();
     else if (v === 'requests') MS.Views.Requests.render();
+    else if (v === 'clients') MS.Views.Clients.render();
   }
 
   function show(name) {

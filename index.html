@@ -76,6 +76,9 @@
       <!-- FÖRSLAG / ANSÖKNINGAR (byggs av js/views/requests.js) -->
       <section id="view-requests" class="view hidden"></section>
 
+      <!-- KLIENTER (caseload, byggs av js/views/clients.js) -->
+      <section id="view-clients" class="view hidden"></section>
+
     </main>
 
     <nav class="nav">
@@ -83,6 +86,7 @@
       <button class="nav-item" data-view="schedule"><span class="ico">📝</span>Schema</button>
       <button class="nav-item" data-view="week"><span class="ico">🗓️</span>Vecka</button>
       <button class="nav-item" data-view="requests"><span class="ico">📨</span><span class="lbl">Förslag</span></button>
+      <button class="nav-item" data-view="clients"><span class="ico">👥</span>Klienter</button>
     </nav>
   </div>
 
@@ -104,6 +108,7 @@
   <script src="js/views/schedule.js"></script>
   <script src="js/views/week.js"></script>
   <script src="js/views/requests.js"></script>
+  <script src="js/views/clients.js"></script>
   <script src="js/app.js"></script>
   <script>
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {

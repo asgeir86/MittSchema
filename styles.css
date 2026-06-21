@@ -136,7 +136,7 @@ header { margin-bottom: 16px; }
 .nav .nav-item {
   background: none; border: none; color: var(--muted);
   font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 4px 18px;
+  padding: 4px 8px; white-space: nowrap;
 }
 .nav .nav-item .ico { font-size: 20px; }
 .nav .nav-item.active { color: var(--text); }
@@ -273,6 +273,20 @@ select { background: var(--card-2); color: var(--text); border: 1px solid var(--
 .app.role-handlaggare .clientbar { display: flex; }
 .clientbar-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
 .clientbar select { padding: 7px 10px; font-size: 14px; max-width: 200px; }
+.app.role-klient .nav-item[data-view="clients"] { display: none; }
+
+/* Klienter (caseload-översikt) */
+.cl-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
+.cl-card.active { border-color: var(--ute); }
+.cl-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cl-name { font-weight: 700; font-size: 16px; }
+.cl-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; flex: 0 0 auto; }
+.cl-status.ute { color: #8be0b6; }
+.cl-status.inne { color: #ff8a80; }
+.cl-dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.cl-meta { margin-top: 8px; }
+.cl-pending { font-size: 12px; background: var(--inne-soft); color: #ffd27a; padding: 2px 9px; border-radius: 999px; }
+.cl-none { font-size: 12px; color: var(--muted); }
 
 /* Historik / spårbarhet */
 .log-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
