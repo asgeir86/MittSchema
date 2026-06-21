@@ -29,8 +29,60 @@ window.MS = window.MS || {};
   function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
   MS.UI = { el: el, clear: clear };
 
-  MS.state = { schedule: null, current: 'today', role: 'klient' };
+  MS.state = { store: null, schedule: null, clientId: null, current: 'today', role: 'klient' };
   var VIEWS = ['today', 'schedule', 'week', 'requests'];
+
+  // ---- Klienter (caseload) + lagring på store-nivå ----
+  function save() { MS.Storage.save(MS.state.store); }
+  MS.save = save;
+
+  function activeClient() {
+    var s = MS.state.store;
+    return s.clients.filter(function (c) { return c.id === MS.state.clientId; })[0] || s.clients[0];
+  }
+  function useClient(id) {
+    MS.state.clientId = id;
+    MS.state.store.activeClientId = id;
+    MS.state.schedule = activeClient().schedule;
+  }
+  function setActiveClient(id) { useClient(id); save(); renderClientBar(); renderCurrent(); }
+  MS.setActiveClient = setActiveClient;
+
+  function addClient(name) {
+    var id = 'c' + Date.now() + Math.floor(Math.random() * 1000);
+    MS.state.store.clients.push({ id: id, name: name || ('Klient ' + (MS.state.store.clients.length + 1)), schedule: MS.Storage.defaultSchedule() });
+    useClient(id); save(); renderClientBar(); renderCurrent();
+  }
+  MS.addClient = addClient;
+
+  // Byt ut aktiv klients schema (reset / importerad backup) utan att tappa store-referensen.
+  function replaceActiveSchedule(sched) {
+    activeClient().schedule = sched;
+    MS.state.schedule = sched;
+    save();
+  }
+  MS.replaceActiveSchedule = replaceActiveSchedule;
+
+  function wireClientBar() {
+    var sel = document.getElementById('client-select');
+    if (sel) sel.addEventListener('change', function (e) { setActiveClient(e.target.value); });
+    var add = document.getElementById('client-add');
+    if (add) add.addEventListener('click', function () {
+      var name = window.prompt('Namn på ny klient:', 'Klient ' + (MS.state.store.clients.length + 1));
+      if (name) addClient(name);
+    });
+  }
+  function renderClientBar() {
+    var sel = document.getElementById('client-select');
+    if (!sel) return;
+    clear(sel);
+    MS.state.store.clients.forEach(function (c) {
+      var opt = document.createElement('option');
+      opt.value = c.id; opt.textContent = c.name;
+      if (c.id === MS.state.clientId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
 
   function renderCurrent() {
     var v = MS.state.current;
@@ -83,12 +135,13 @@ window.MS = window.MS || {};
     var sc = MS.state.schedule;
     sc.log = sc.log || [];
     sc.log.push({ ts: new Date().toISOString(), role: MS.state.role, action: action, detail: detail });
-    MS.Storage.save(sc);
+    save();
   }
   MS.logEvent = logEvent;
 
   function init() {
-    MS.state.schedule = MS.Storage.load();
+    MS.state.store = MS.Storage.load();
+    useClient(MS.state.store.activeClientId);
     MS.state.role = loadRole();
     Array.prototype.forEach.call(document.querySelectorAll('.nav .nav-item'), function (b) {
       b.addEventListener('click', function () { show(b.getAttribute('data-view')); });
@@ -96,7 +149,9 @@ window.MS = window.MS || {};
     Array.prototype.forEach.call(document.querySelectorAll('.role-btn'), function (b) {
       b.addEventListener('click', function () { setRole(b.getAttribute('data-role')); });
     });
+    wireClientBar();
     applyRoleUI(MS.state.role);
+    renderClientBar();
     show('today');
     // Idag-vyn har nedräkning -> uppdatera var 30:e sekund när den visas.
     setInterval(function () { if (MS.state.current === 'today') MS.Views.Today.render(); }, 30000);

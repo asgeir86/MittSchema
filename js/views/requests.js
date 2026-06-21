@@ -9,7 +9,7 @@ window.MS = window.MS || {};
   'use strict';
   var S = MS.Schedule;
   function el() { return MS.UI.el.apply(null, arguments); }
-  function save() { MS.Storage.save(MS.state.schedule); }
+  function save() { MS.save(); }
   function rerender() { render(); }
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }

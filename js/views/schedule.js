@@ -18,7 +18,7 @@ window.MS = window.MS || {};
   var copyPanelKey = null; // "w|<vecka>|<iso>" för dagen vars kopiera-panel är öppen
 
   function el() { return MS.UI.el.apply(null, arguments); }
-  function save() { MS.Storage.save(MS.state.schedule); }
+  function save() { MS.save(); }
   function rerender() { render(); }
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
@@ -308,7 +308,7 @@ window.MS = window.MS || {};
       if (!window.confirm('Ersätta ditt nuvarande schema med innehållet i filen?')) return;
       var migrated = MS.Storage.importFromObject(obj);
       if (!migrated) { window.alert('Säkerhetskopian kunde inte läsas in.'); return; }
-      MS.state.schedule = migrated;
+      MS.replaceActiveSchedule(migrated);
       editWeek = 0; editTarget = null; copyPanelKey = null;
       rerender();
     };
@@ -329,9 +329,9 @@ window.MS = window.MS || {};
     wrap.appendChild(el('button', { class: 'btn secondary', text: 'Återställ exempelschema', style: 'margin-top:12px',
       onclick: function () {
         if (window.confirm('Ersätta ditt schema med exempelschemat? Detta går inte att ångra.')) {
-          MS.state.schedule = MS.Storage.defaultSchedule();
+          MS.replaceActiveSchedule(MS.Storage.defaultSchedule());
           editWeek = 0; editTarget = null; copyPanelKey = null;
-          save(); rerender();
+          rerender();
         }
       } }));
     return wrap;

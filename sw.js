@@ -1,5 +1,5 @@
 /* Service worker — cachar app-skalet så appen funkar offline. */
-var CACHE = 'mittschema-v9';
+var CACHE = 'mittschema-v10';
 var ASSETS = [
   './',
   './index.html',
