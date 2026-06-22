@@ -68,8 +68,9 @@ window.MS = window.MS || {};
     if (sel) sel.addEventListener('change', function (e) { setActiveClient(e.target.value); });
     var add = document.getElementById('client-add');
     if (add) add.addEventListener('click', function () {
-      var name = window.prompt('Namn på ny klient:', 'Klient ' + (MS.state.store.clients.length + 1));
-      if (name) addClient(name);
+      // Samma inline-flöde som i Klienter-vyn (ingen window.prompt).
+      show('clients');
+      if (MS.Views.Clients && MS.Views.Clients.openAdd) MS.Views.Clients.openAdd();
     });
   }
   function renderClientBar() {
@@ -125,8 +126,11 @@ window.MS = window.MS || {};
     MS.state.role = role;
     saveRole(role);
     applyRoleUI(role);
-    // Klienten saknar Schema-fliken -> hoppa till Idag om man stod där.
-    if (role === 'klient' && MS.state.current === 'schedule') show('today');
+    // Klienten saknar Schema- OCH Klienter-flikarna (handläggar-bara). Stod man på någon av
+    // dem måste vi hoppa till Idag — annars blir handläggar-vyn (t.ex. hela caseloaden) kvar
+    // synlig i klient-läget, fast nav-fliken döljs. Det vore en roll-läcka.
+    var onHandlOnlyView = (MS.state.current === 'schedule' || MS.state.current === 'clients');
+    if (role === 'klient' && onHandlOnlyView) show('today');
     else renderCurrent();
   }
   MS.setRole = setRole;

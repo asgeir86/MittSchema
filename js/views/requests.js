@@ -59,7 +59,10 @@ window.MS = window.MS || {};
     var end = el('input', { type: 'datetime-local', value: dtLocal(e) });
     var note = el('input', { type: 'text', class: 'in-label', placeholder: 'Meddelande (valfritt)' });
     var err = el('p', { class: 'edit-err', text: '' });
-    card.appendChild(el('p', { class: 'req-form-title', text: 'Ansök om permission (72h)' }));
+    var stats = S.permissionStatsForMonth(s, MS.state.schedule);
+    card.appendChild(el('p', { class: 'req-form-title', text: 'Ansök om permission (max 72h)' }));
+    card.appendChild(el('p', { class: 'muted-note',
+      text: 'Denna månad: ' + stats.count + ' av ' + stats.maxCount + ' tillfällen · ' + stats.hours + ' av ' + stats.maxHours + ' tim använda.' }));
     card.appendChild(el('div', { class: 'win-row' }, [el('span', { class: 'dash wide', text: 'Från' }), start]));
     card.appendChild(el('div', { class: 'win-row' }, [el('span', { class: 'dash wide', text: 'Till' }), end]));
     card.appendChild(note);
@@ -68,6 +71,8 @@ window.MS = window.MS || {};
       onclick: function () {
         if (!start.value || !end.value) { err.textContent = 'Fyll i från och till.'; return; }
         if (new Date(end.value) <= new Date(start.value)) { err.textContent = 'Till måste vara efter från.'; return; }
+        var hrs = (new Date(end.value) - new Date(start.value)) / 3600000;
+        if (hrs > 72) { err.textContent = 'En permission får vara högst 72 timmar (du valde ' + (Math.round(hrs * 10) / 10) + ' h).'; return; }
         addRequest({ id: uid(), type: 'permission', status: 'pending', created: new Date().toISOString(),
           start: start.value, end: end.value, note: note.value });
       } }));
@@ -91,7 +96,14 @@ window.MS = window.MS || {};
     var sc = MS.state.schedule;
     sc.requests = sc.requests || [];
     var wrap = el('div');
-    if (!sc.requests.length) { wrap.appendChild(el('p', { class: 'muted-note', text: 'Inga förslag ännu. Skicka ett ovan så dyker det upp här.' })); return wrap; }
+    if (!sc.requests.length) {
+      // Handläggaren har inget skicka-formulär ("ovan") — texten måste skilja på rollerna.
+      var emptyTxt = canDecide
+        ? 'Inga förslag att besluta just nu.'
+        : 'Inga ansökningar ännu. Skicka ett förslag ovan så dyker det upp här.';
+      wrap.appendChild(el('p', { class: 'muted-note', text: emptyTxt }));
+      return wrap;
+    }
     var sorted = sc.requests.slice().sort(function (a, b) {
       if (a.status === 'pending' && b.status !== 'pending') return -1;
       if (b.status === 'pending' && a.status !== 'pending') return 1;
@@ -138,13 +150,22 @@ window.MS = window.MS || {};
     return wrap;
   }
 
+  // Namnet på den klient handläggaren just nu granskar (vald i klient-baren).
+  function activeClientName() {
+    var s = MS.state.store;
+    if (!s || !s.clients || !s.clients.length) return '';
+    var c = s.clients.filter(function (x) { return x.id === MS.state.clientId; })[0] || s.clients[0];
+    return c ? c.name : '';
+  }
+
   function render() {
     var root = document.getElementById('view-requests');
     MS.UI.clear(root);
     var handl = MS.state.role === 'handlaggare';
+    var name = activeClientName();
     root.appendChild(el('h2', { class: 'view-title', text: handl ? 'Inkomna förslag' : 'Mina ansökningar' }));
     root.appendChild(el('p', { class: 'view-sub', text: handl
-      ? 'Granska klientens förslag och besluta. Godkänt slår igenom i schemat.'
+      ? 'Granska förslag från ' + (name || 'klienten') + ' och besluta. Godkänt slår igenom i schemat.'
       : 'Föreslå ändrad tid eller ansök om permission. Du ser status på dina ansökningar här.' }));
     if (handl) {
       root.appendChild(queue(true));

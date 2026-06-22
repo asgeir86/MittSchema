@@ -284,9 +284,12 @@ select { background: var(--card-2); color: var(--text); border: 1px solid var(--
 .cl-status.ute { color: #8be0b6; }
 .cl-status.inne { color: #ff8a80; }
 .cl-dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
-.cl-meta { margin-top: 8px; }
+.cl-meta { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.cl-next { font-size: 13px; color: var(--muted); }
 .cl-pending { font-size: 12px; background: var(--inne-soft); color: #ffd27a; padding: 2px 9px; border-radius: 999px; }
 .cl-none { font-size: 12px; color: var(--muted); }
+.cl-add-form { margin: 2px 0 8px; }
+.cl-add-form .in-label { width: 100%; }
 
 /* Historik / spårbarhet */
 .log-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
