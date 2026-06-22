@@ -118,6 +118,22 @@ window.MS = window.MS || {};
     return out;
   }
 
+  // Slutet på en pågående ute-period, med dygnsgränser hopsydda. Ute-fönster lagras per
+  // kalenderdygn och klipps till [0,1440], så en period över midnatt delas i ett fönster som
+  // slutar på 1440 idag och ett som börjar på 0 imorgon. Utan hopsömnad rapporteras felaktigt
+  // "inne" vid 00:00. Följer kedjan framåt så länge fönstret slutar vid midnatt OCH nästa dygn
+  // börjar vid midnatt. (guard: skydd mot trasig data, permissioner är i praktiken ≤ 72 tim.)
+  function outEndAfter(refDate, endMin, schedule) {
+    var dayRef = refDate, curEnd = endMin, guard = 0;
+    while (curEnd >= 1440 && guard++ < 400) {
+      var next = new Date(dayRef.getFullYear(), dayRef.getMonth(), dayRef.getDate() + 1, 0, 0, 0, 0);
+      var fm = mergeWindows(getOutWindowsForDate(next, schedule));
+      if (fm.length && fm[0].startMin === 0) { dayRef = next; curEnd = fm[0].endMin; }
+      else break; // nästa dygn börjar inte vid midnatt → perioden slutar vid 00:00
+    }
+    return makeDate(dayRef, curEnd);
+  }
+
   // Status vid 'now': ute/inne + när nästa ändring sker (söker upp till 14 dagar framåt).
   function getStatusAt(now, schedule) {
     var nowMin = now.getHours() * 60 + now.getMinutes();
@@ -128,7 +144,7 @@ window.MS = window.MS || {};
     for (i = 0; i < merged.length; i++) {
       w = merged[i];
       if (nowMin >= w.startMin && nowMin < w.endMin) {
-        return { state: 'ute', windows: windows, changeAt: makeDate(now, w.endMin), changeTo: 'inne' };
+        return { state: 'ute', windows: windows, changeAt: outEndAfter(now, w.endMin, schedule), changeTo: 'inne' };
       }
     }
     for (i = 0; i < merged.length; i++) {

@@ -82,6 +82,10 @@ npx serve -l 8000
 }
 ```
 
-### Känd begränsning (v1)
-Permission som löper över midnatt till en dag som också är permission kan visa en kort "inne"-flagg
-vid dygnsväxlingen i statustexten. Åtgärdas när permission-redigeringen byggs.
+### Tester
+Den deterministiska schemalogiken (`js/schedule.js`) har ett fristående regressionstest:
+```powershell
+node tests/schedule.test.js
+```
+Bland fallen: permission som löper över midnatt ska fortsätta visa "ute" och peka på permissionens
+verkliga slut (inte felaktigt flagga "inne" vid 00:00).
