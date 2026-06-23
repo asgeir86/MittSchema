@@ -1,6 +1,6 @@
 @MittSchema.Api_HostAddress = http://localhost:5262
 
-GET {{MittSchema.Api_HostAddress}}/weatherforecast/
+GET {{MittSchema.Api_HostAddress}}/health
 Accept: application/json
 
 ###
