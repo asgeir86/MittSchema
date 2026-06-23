@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MittSchema.Api/MittSchema.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MittSchema.Api.Tests/MittSchema.Api.Tests.csproj" />
+  </Folder>
+</Solution>
