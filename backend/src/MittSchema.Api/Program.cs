@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // DB: Postgres i drift. Testprojektet ersätter denna registrering med InMemory.
-var conn = builder.Configuration.GetConnectionString("Default");
+var conn = builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException("ConnectionStrings:Default saknas i konfigurationen.");
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(conn));
 
 builder.Services

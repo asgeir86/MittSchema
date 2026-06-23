@@ -12,10 +12,19 @@ public class ApiFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            // Ta bort den Npgsql-registrerade kontexten och dess options.
+            // Ta bort ALLA AppDbContext-relaterade registreringar. EF Core 9+/10:s
+            // AddDbContext registrerar inte bara DbContextOptions/kontexten utan även
+            // en IDbContextOptionsConfiguration<AppDbContext> som bär Npgsql-providern.
+            // Lämnas den kvar samexisterar Npgsql + InMemory när options byggs (seed/
+            // DB-åtkomst i senare tasks) → "Only a single database provider"-fel.
+            // Matchas på typnamn så vi slipper referera den interna typen direkt.
             var toRemove = services.Where(d =>
                 d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
-                d.ServiceType == typeof(AppDbContext)).ToList();
+                d.ServiceType == typeof(DbContextOptions) ||
+                d.ServiceType == typeof(AppDbContext) ||
+                (d.ServiceType.IsGenericType &&
+                 d.ServiceType.GetGenericTypeDefinition().Name.Contains("DbContextOptionsConfiguration") &&
+                 d.ServiceType.GenericTypeArguments.Contains(typeof(AppDbContext)))).ToList();
             foreach (var d in toRemove) services.Remove(d);
 
             services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("mittschema-tests"));
