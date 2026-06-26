@@ -25,8 +25,12 @@ public class ClientsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateClientRequest req)
     {
+        if (string.IsNullOrWhiteSpace(req.Name))
+            return BadRequest(new { errors = new[] { "Name kravs." } });
+
         var handlaggareId = _users.GetUserId(User)!;
-        var login = $"klient-{Guid.NewGuid():N}".Substring(0, 14) + "@klient.local";
+        // Full GUID i loginnamnet (ingen trunkering) → ingen kollisionsrisk.
+        var login = $"klient-{Guid.NewGuid():N}@klient.local";
         var oneTimeCode = GenerateCode();
 
         var user = new ApplicationUser
@@ -39,22 +43,41 @@ public class ClientsController : ControllerBase
         var created = await _users.CreateAsync(user, oneTimeCode);
         if (!created.Succeeded)
             return BadRequest(new { errors = created.Errors.Select(e => e.Description) });
-        await _users.AddToRoleAsync(user, Roles.Klient);
 
-        _db.ClientProfiles.Add(new ClientProfile
+        // Provisioneringen ska vara allt-eller-inget. Om roll/profil/schema misslyckas
+        // EFTER att Identity-anvandaren skapats, ta bort anvandaren sa inget foraldralost
+        // konto blir kvar. TODO Fas 5: byt till en riktig DB-transaktion (Postgres; EF
+        // InMemory saknar transaktioner) som omsluter bade Identity- och domanskrivningar.
+        try
         {
-            UserId = user.Id,
-            HandlaggareId = handlaggareId,
-            Name = req.Name
-        });
-        _db.Schedules.Add(new Schedule { ClientUserId = user.Id, Data = "{}" });
-        await _db.SaveChangesAsync();
+            var roleResult = await _users.AddToRoleAsync(user, Roles.Klient);
+            if (!roleResult.Succeeded)
+                throw new InvalidOperationException(
+                    $"AddToRoleAsync misslyckades: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+
+            _db.ClientProfiles.Add(new ClientProfile
+            {
+                UserId = user.Id,
+                HandlaggareId = handlaggareId,
+                Name = req.Name
+            });
+            _db.Schedules.Add(new Schedule { ClientUserId = user.Id, Data = "{}" });
+            await _db.SaveChangesAsync();
+        }
+        catch
+        {
+            await _users.DeleteAsync(user);
+            throw;
+        }
 
         return Created($"/api/clients/{user.Id}",
             new CreateClientResponse(user.Id, req.Name, login, oneTimeCode));
     }
 
-    // Engångskod: 10 tecken, lättläst (inga 0/O/1/I), uppfyller lösenordskraven.
+    // Engångskod: 12 tecken (Ms + 10), lättläst (inga 0/O/1/I), uppfyller lösenordskraven.
+    // "Ms"-prefixet garanterar versal+gemen+längd. Den lilla modulo-biasen i
+    // teckenfördelningen är känd och acceptabel för en engångskod som dessutom
+    // tvingar lösenordsbyte vid första inloggning.
     private static string GenerateCode()
     {
         const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";

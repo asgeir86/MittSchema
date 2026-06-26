@@ -19,6 +19,8 @@ builder.Services
         opt.User.RequireUniqueEmail = false;
         // Engångskoden (och klientvalda lösenord) garanterar versal+gemen+längd, inte
         // siffra/specialtecken. Relaxa policyn därefter (planens GenerateCode-intent).
+        // TODO Fas 5/produktionshärdning: omvärdera om klientvalda lösenord ska kräva
+        // siffra/specialtecken igen (påverkar även lösenordet klienten själv väljer).
         opt.Password.RequireNonAlphanumeric = false;
         opt.Password.RequireDigit = false;
     })

@@ -47,4 +47,26 @@ public class ProvisioningTests : IClassFixture<ApiFactory>
         var res = await anon.PostAsJsonAsync("/api/clients", new CreateClientRequest("X"));
         res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task Klient_cannot_create_client_gets_403()
+    {
+        // Handläggaren provisionerar en klient, sedan loggar vi in SOM klienten.
+        var hl = await TestAuth.LoginSeededHandlaggareAsync(_factory);
+        var created = await hl.PostAsJsonAsync("/api/clients", new CreateClientRequest("Ny Klient"));
+        var body = await created.Content.ReadFromJsonAsync<CreateClientResponse>();
+
+        var klient = await TestAuth.LoginAsync(_factory, body!.Login, body.OneTimeCode);
+        var forbidden = await klient.PostAsJsonAsync("/api/clients", new CreateClientRequest("Obehorig"));
+
+        forbidden.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Create_with_empty_name_returns_400()
+    {
+        var hl = await TestAuth.LoginSeededHandlaggareAsync(_factory);
+        var res = await hl.PostAsJsonAsync("/api/clients", new CreateClientRequest(""));
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }
