@@ -25,6 +25,7 @@ public class AuthController : ControllerBase
         var user = await _users.FindByNameAsync(req.Login);
         if (user is null) return Unauthorized();
 
+        // lockoutOnFailure: false — brute-force-lockout avstängt för piloten (medvetet val).
         var result = await _signIn.PasswordSignInAsync(user, req.Password, isPersistent: true, lockoutOnFailure: false);
         if (!result.Succeeded) return Unauthorized();
 
@@ -53,6 +54,10 @@ public class AuthController : ControllerBase
 
         user.MustChangePassword = false;
         await _users.UpdateAsync(user);
+
+        // ChangePasswordAsync roterar SecurityStamp → den gamla cookien förkastas av
+        // SecurityStampValidator. Återutfärda cookien så sessionen överlever bytet.
+        await _signIn.RefreshSignInAsync(user);
         return NoContent();
     }
 }
