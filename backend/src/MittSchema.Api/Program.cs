@@ -34,6 +34,8 @@ builder.Services.ConfigureApplicationCookie(opt =>
     opt.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = 403; return Task.CompletedTask; };
 });
 
+builder.Services.AddScoped<MittSchema.Api.Services.IClientAccessService, MittSchema.Api.Services.ClientAccessService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

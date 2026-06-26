@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using MittSchema.Api.Contracts;
 using MittSchema.Api.Data;
 using MittSchema.Api.Domain;
+using MittSchema.Api.Services;
 
 namespace MittSchema.Api.Controllers;
 
@@ -15,11 +16,13 @@ public class ClientsController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _users;
     private readonly AppDbContext _db;
+    private readonly IClientAccessService _access;
 
-    public ClientsController(UserManager<ApplicationUser> users, AppDbContext db)
+    public ClientsController(UserManager<ApplicationUser> users, AppDbContext db, IClientAccessService access)
     {
         _users = users;
         _db = db;
+        _access = access;
     }
 
     [HttpPost]
@@ -72,6 +75,23 @@ public class ClientsController : ControllerBase
 
         return Created($"/api/clients/{user.Id}",
             new CreateClientResponse(user.Id, req.Name, login, oneTimeCode));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Caseload()
+    {
+        var handlaggareId = _users.GetUserId(User)!;
+        var clients = await _access.CaseloadAsync(handlaggareId);
+        return Ok(clients.Select(c => new ClientSummary(c.UserId, c.Name)));
+    }
+
+    [HttpGet("{clientUserId}")]
+    public async Task<IActionResult> GetOne(string clientUserId)
+    {
+        var handlaggareId = _users.GetUserId(User)!;
+        var profile = await _access.GetForHandlaggareAsync(handlaggareId, clientUserId);
+        if (profile is null) return NotFound();
+        return Ok(new ClientSummary(profile.UserId, profile.Name));
     }
 
     // Engångskod: 12 tecken (Ms + 10), lättläst (inga 0/O/1/I), uppfyller lösenordskraven.
