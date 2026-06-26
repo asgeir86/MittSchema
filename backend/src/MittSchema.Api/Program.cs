@@ -17,6 +17,10 @@ builder.Services
     {
         opt.Password.RequiredLength = 8;
         opt.User.RequireUniqueEmail = false;
+        // Engångskoden (och klientvalda lösenord) garanterar versal+gemen+längd, inte
+        // siffra/specialtecken. Relaxa policyn därefter (planens GenerateCode-intent).
+        opt.Password.RequireNonAlphanumeric = false;
+        opt.Password.RequireDigit = false;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
