@@ -30,6 +30,11 @@ builder.Services.ConfigureApplicationCookie(opt =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    await MittSchema.Api.Data.DbSeeder.SeedAsync(scope.ServiceProvider);
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 

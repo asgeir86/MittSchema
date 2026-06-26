@@ -8,6 +8,10 @@ namespace MittSchema.Api.Tests;
 
 public class ApiFactory : WebApplicationFactory<Program>
 {
+    // Unik per fabriksinstans sa att varje testklass far sin isolerade InMemory-databas,
+    // men alla DbContext-instanser inom samma fabrik delar samma namngivna databas.
+    private readonly string _dbName = $"mittschema-tests-{Guid.NewGuid()}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -27,7 +31,7 @@ public class ApiFactory : WebApplicationFactory<Program>
                  d.ServiceType.GenericTypeArguments.Contains(typeof(AppDbContext)))).ToList();
             foreach (var d in toRemove) services.Remove(d);
 
-            services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("mittschema-tests"));
+            services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase(_dbName));
         });
     }
 }
